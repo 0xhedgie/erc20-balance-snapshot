@@ -1,13 +1,13 @@
 import { BigDecimal, Bytes, ethereum } from '@graphprotocol/graph-ts'
 
-import { ERC20, Transfer } from '../../generated/templates/StandardToken/ERC20'
-import { Burn } from '../../generated/templates/BurnableToken/Burnable'
-import { Mint } from '../../generated/templates/MintableToken/Mintable'
+import { ERC20, Transfer } from '../../generated/StandardToken/ERC20'
+import { Burn } from '../../generated/BurnableToken/Burnable'
+import { Mint } from '../../generated/MintableToken/Mintable'
 
 import { Token } from '../../generated/schema'
 
 import { toDecimal, ONE, ZERO } from '../helpers/number'
-
+import { log } from '@graphprotocol/graph-ts';
 import {
   decreaseAccountBalance,
   getOrCreateAccount,
@@ -21,14 +21,24 @@ export function fetchTokenDetails(event: ethereum.Event): Token | null {
   //check if token details are already saved
   let token = Token.load(event.address.toHex());
   if (!token) {
-    //if token details are not available
-    //create a new token
+    // If token details are not available, create a new token
     token = new Token(event.address.toHex());
+
+    //set the address field
+    token.address = event.address;
 
     //set some default values
     token.name = "N/A";
     token.symbol = "N/A";
     token.decimals = 0;
+    token.eventCount = ZERO; // Initialize eventCount
+    token.burnEventCount = ZERO; // Initialize eventCount
+    token.mintEventCount = ZERO; // Initialize eventCount
+    token.transferEventCount = ZERO; 
+    token.totalSupply = BigDecimal.fromString('0');
+    token.totalBurned = BigDecimal.fromString('0');
+    token.totalMinted = BigDecimal.fromString('0');
+    token.totalTransferred = BigDecimal.fromString('0');
 
     //bind the contract
     let erc20 = ERC20.bind(event.address);

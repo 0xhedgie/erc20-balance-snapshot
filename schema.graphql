@@ -89,9 +89,6 @@ type Token @entity {
   " Image URL "
   imageUrl: String
 
-  " Token flags"
-  flags: [String!]!
-
   # TODO: Number of token holders
   # holderCount: BigInt!
 
