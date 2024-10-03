@@ -89,8 +89,7 @@ type Token @entity {
   " Image URL "
   imageUrl: String
 
-  # TODO: Number of token holders
-  # holderCount: BigInt!
+  holderCount: BigInt!
 
   " Total number of events (all types)"
   eventCount: BigInt!

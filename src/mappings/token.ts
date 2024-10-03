@@ -3,11 +3,9 @@ import { BigDecimal, Bytes, ethereum } from '@graphprotocol/graph-ts'
 import { ERC20, Transfer } from '../../generated/StandardToken/ERC20'
 import { Burn } from '../../generated/BurnableToken/Burnable'
 import { Mint } from '../../generated/MintableToken/Mintable'
-
 import { Token } from '../../generated/schema'
 
 import { toDecimal, ONE, ZERO } from '../helpers/number'
-import { log } from '@graphprotocol/graph-ts';
 import {
   decreaseAccountBalance,
   getOrCreateAccount,
@@ -73,10 +71,9 @@ export function handleTransfer(event: Transfer): void {
   if (token != null) {
     let amount = toDecimal(event.params.value, token.decimals)
 
-    let isBurn = /*token.flags.includes('burnable-transfer') &&*/ event.params.to.toHex() == GENESIS_ADDRESS
-    let isMint = /*token.flags.includes('mintable-transfer') &&*/ event.params.from.toHex() == GENESIS_ADDRESS
+    let isBurn = event.params.to.toHex() == GENESIS_ADDRESS
+    let isMint = event.params.from.toHex() == GENESIS_ADDRESS
     let isTransfer = !isBurn && !isMint
-
 
     if (isBurn) {
       handleBurnEvent(token, amount, event.params.from, event)
@@ -170,8 +167,6 @@ export function handleMint(event: Mint): void {
 }
 
 function handleBurnEvent(token: Token | null, amount: BigDecimal, burner: Bytes, event: ethereum.Event): void {
-  
-
   // Track total supply/burned
   if (token != null) {
     token.eventCount = token.eventCount.plus(ONE)
@@ -180,22 +175,17 @@ function handleBurnEvent(token: Token | null, amount: BigDecimal, burner: Bytes,
     token.totalBurned = token.totalBurned.plus(amount)
     token.save()
   }
-
 }
 
 function handleMintEvent(token: Token | null, amount: BigDecimal, destination: Bytes, event: ethereum.Event): void {
-
-
   // Track total token supply/minted
   if (token != null) {
     token.eventCount = token.eventCount.plus(ONE)
     token.mintEventCount = token.mintEventCount.plus(ONE)
     token.totalSupply = token.totalSupply.plus(amount)
     token.totalMinted = token.totalMinted.plus(amount)
-
     token.save()
   }
-
 }
 
 function handleTransferEvent(
@@ -205,15 +195,11 @@ function handleTransferEvent(
   destination: Bytes,
   event: ethereum.Event,
 ): void {
-
-
   // Track total token transferred
   if (token != null) {
     token.eventCount = token.eventCount.plus(ONE)
     token.transferEventCount = token.transferEventCount.plus(ONE)
     token.totalTransferred = token.totalTransferred.plus(amount)
-
     token.save()
   }
-
 }
