@@ -6,7 +6,7 @@
     "auth": "graph auth https://api.thegraph.com/deploy/",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ graphprotocol/erc20-subgraph",
+    "deploy": "graph deploy --studio snapshot-erc20-on-linea",
     "create-local": "graph create --node http://localhost:8020/ graphprotocol/erc20-subgraph",
     "remove-local": "graph remove --node http://localhost:8020/ graphprotocol/erc20-subgraph",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 graphprotocol/erc20-subgraph"

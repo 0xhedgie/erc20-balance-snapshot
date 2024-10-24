@@ -2,7 +2,7 @@ import { BigDecimal, Bytes, ethereum } from '@graphprotocol/graph-ts'
 
 import { Account, AccountBalance, AccountBalanceSnapshot, Token } from '../../generated/schema'
 
-import { ZERO } from '../helpers/number'
+import { ONE, ZERO } from '../helpers/number'
 
 export function getOrCreateAccount(accountAddress: Bytes): Account {
   let accountId = accountAddress.toHex()
@@ -36,8 +36,13 @@ function getOrCreateAccountBalance(account: Account, token: Token): AccountBalan
 
 export function increaseAccountBalance(account: Account, token: Token, amount: BigDecimal): AccountBalance {
   let balance = getOrCreateAccountBalance(account, token)
-  balance.amount = balance.amount.plus(amount)
+  
+  // increase token.holderCount if the balance.amount is not ZERO
+  if (balance.amount.equals(ZERO.toBigDecimal())) {
+    token.holderCount = token.holderCount.plus(ONE)
+  }
 
+  balance.amount = balance.amount.plus(amount)
   return balance
 }
 
@@ -45,6 +50,10 @@ export function decreaseAccountBalance(account: Account, token: Token, amount: B
   let balance = getOrCreateAccountBalance(account, token)
   balance.amount = balance.amount.minus(amount)
 
+  // decrease token.holderCount if the balance.amount is ZERO
+  if (balance.amount.equals(ZERO.toBigDecimal())) {
+    token.holderCount = token.holderCount.minus(ONE)
+  }
   return balance
 }
 
@@ -55,7 +64,6 @@ export function saveAccountBalanceSnapshot(balance: AccountBalance, event: ether
   snapshot.amount = balance.amount
 
   snapshot.block = event.block.number
-  snapshot.transaction = event.transaction.hash
   snapshot.timestamp = event.block.timestamp
 
   snapshot.save()

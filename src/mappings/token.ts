@@ -1,8 +1,6 @@
 import { BigDecimal, Bytes, ethereum } from '@graphprotocol/graph-ts'
 
 import { ERC20, Transfer } from '../../generated/StandardToken/ERC20'
-import { Burn } from '../../generated/BurnableToken/Burnable'
-import { Mint } from '../../generated/MintableToken/Mintable'
 import { Token } from '../../generated/schema'
 
 import { toDecimal, ONE, ZERO } from '../helpers/number'
@@ -32,7 +30,8 @@ export function fetchTokenDetails(event: ethereum.Event): Token | null {
     token.eventCount = ZERO; // Initialize eventCount
     token.burnEventCount = ZERO; // Initialize eventCount
     token.mintEventCount = ZERO; // Initialize eventCount
-    token.transferEventCount = ZERO; 
+    token.transferEventCount = ZERO;
+    token.holderCount = ZERO;
     token.totalSupply = BigDecimal.fromString('0');
     token.totalBurned = BigDecimal.fromString('0');
     token.totalMinted = BigDecimal.fromString('0');
@@ -90,7 +89,6 @@ export function handleTransfer(event: Transfer): void {
       let accountBalance = decreaseAccountBalance(sourceAccount, token as Token, amount)
       accountBalance.block = event.block.number
       accountBalance.modified = event.block.timestamp
-      accountBalance.transaction = event.transaction.hash
 
       sourceAccount.save()
       accountBalance.save()
@@ -105,7 +103,6 @@ export function handleTransfer(event: Transfer): void {
       let accountBalance = increaseAccountBalance(destinationAccount, token as Token, amount)
       accountBalance.block = event.block.number
       accountBalance.modified = event.block.timestamp
-      accountBalance.transaction = event.transaction.hash
 
       destinationAccount.save()
       accountBalance.save()
@@ -113,56 +110,6 @@ export function handleTransfer(event: Transfer): void {
       // To provide information about evolution of account balances
       saveAccountBalanceSnapshot(accountBalance, event)
     }
-  }
-}
-
-export function handleBurn(event: Burn): void {
-  let token = fetchTokenDetails(event)
-
-  if (token != null) {
-    let amount = toDecimal(event.params.value, token.decimals)
-
-    // Persist burn event log
-    handleBurnEvent(token, amount, event.params.burner, event)
-
-    // Update source account balance
-    let account = getOrCreateAccount(event.params.burner)
-
-    let accountBalance = decreaseAccountBalance(account, token as Token, amount)
-    accountBalance.block = event.block.number
-    accountBalance.modified = event.block.timestamp
-    accountBalance.transaction = event.transaction.hash
-
-    account.save()
-    accountBalance.save()
-
-    // To provide information about evolution of account balances
-    saveAccountBalanceSnapshot(accountBalance, event)
-  }
-}
-
-export function handleMint(event: Mint): void {
-  let token = fetchTokenDetails(event)
-
-  if (token != null) {
-    let amount = toDecimal(event.params.amount, token.decimals)
-
-    // Persist mint event log
-    handleMintEvent(token, amount, event.params.to, event)
-
-    // Update destination account balance
-    let account = getOrCreateAccount(event.params.to)
-
-    let accountBalance = increaseAccountBalance(account, token as Token, amount)
-    accountBalance.block = event.block.number
-    accountBalance.modified = event.block.timestamp
-    accountBalance.transaction = event.transaction.hash
-
-    account.save()
-    accountBalance.save()
-
-    // To provide information about evolution of account balances
-    saveAccountBalanceSnapshot(accountBalance, event)
   }
 }
 

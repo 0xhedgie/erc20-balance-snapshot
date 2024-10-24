@@ -33,9 +33,6 @@ type AccountBalance @entity {
 
   " Last modified timestamp in seconds "
   modified: BigInt
-
-  " Hash of the last transaction that modified the balance "
-  transaction: Bytes
 }
 
 #
@@ -60,9 +57,6 @@ type AccountBalanceSnapshot @entity {
 
   " Timestamp in seconds "
   timestamp: BigInt!
-
-  " Transaction hash "
-  transaction: Bytes!
 }
 
 #
@@ -82,12 +76,6 @@ type Token @entity {
 
   " Symbol of the token "
   symbol: String!
-
-  " Token description "
-  description: String
-
-  " Image URL "
-  imageUrl: String
 
   holderCount: BigInt!
 
