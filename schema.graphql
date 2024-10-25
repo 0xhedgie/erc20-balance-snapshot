@@ -79,26 +79,11 @@ type Token @entity {
 
   holderCount: BigInt!
 
-  " Total number of events (all types)"
-  eventCount: BigInt!
-
-  " Total number of burn events "
-  burnEventCount: BigInt!
-
-  " Total number of mint events "
-  mintEventCount: BigInt!
-
   " Total number of transfer events "
   transferEventCount: BigInt!
 
   " Total token supply "
   totalSupply: BigDecimal!
-
-  " Total token burned "
-  totalBurned: BigDecimal!
-
-  " Total token minted "
-  totalMinted: BigDecimal!
 
   " Total token transferred "
   totalTransferred: BigDecimal!
